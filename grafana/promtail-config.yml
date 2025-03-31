@@ -1,0 +1,29 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+  batchwait: 30s         # send every 2s or batch full
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: node-app
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: node-app
+          __path__: /app/*.log
+          
+# Remove debug from logs. 
+pipelines:
+  - match:
+      selector: '{job="node-app"}'
+      stages:
+        - drop:
+            expression: "DEBUG"
+
+  
